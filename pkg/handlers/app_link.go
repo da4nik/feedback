@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,11 +21,13 @@ func (h Handlers) appLink(w http.ResponseWriter, r *http.Request) {
 
 	log.Debugf("Sending app link to: %s", phone)
 	if err := h.sendTextLink(phone, iOSAppLinkMessage, w); err != nil {
+		log.Errorf("unable to send ios link: %s", err.Error())
 		return
 	}
 
 	log.Debugf("Sending android app link to: %s", phone)
 	if err := h.sendTextLink(phone, androidAppLinkMessage, w); err != nil {
+		log.Errorf("unable to send android link: %s", err.Error())
 		return
 	}
 
@@ -36,11 +37,6 @@ func (h Handlers) appLink(w http.ResponseWriter, r *http.Request) {
 func (h Handlers) sendTextLink(phone, link string, w http.ResponseWriter) error {
 	if err := h.text.Send(phone, link); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-
-		w.Write([]byte(
-			fmt.Sprintf(
-				"{\"error\": \"unable to send text app link: %s\"}",
-				err.Error())))
 		return err
 	}
 	return nil

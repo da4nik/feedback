@@ -25,17 +25,18 @@ func main() {
 		conf.TwilioSID,
 		conf.TwilioKey)
 
-	mandr, err := mandrill.NewMandrill(conf.TargetEmail, conf.MandrillKey)
+	mandr, err := mandrill.NewMandrill(conf.MandrillKey)
 	if err != nil {
 		log.Errorf("Unable to create Mandrill email proxy: %s", err.Error())
 		return
 	}
 
-	hndlr := handlers.NewHandlers(txt, mandr)
+	hndlr := handlers.NewHandlers(txt, mandr, conf.TargetEmail)
 
 	httpServer := server.NewServer(conf.Port, hndlr)
 	httpServer.Start()
 
+	log.Infof("Starting on port %d", conf.Port)
 	log.Infof("Crtl-C to interrupt.")
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGQUIT)

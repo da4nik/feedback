@@ -12,7 +12,7 @@ type Mandrill struct {
 }
 
 // NewMandrill - returns new mandrill email instance
-func NewMandrill(targetEmail, mandrillKey string) (Mandrill, error) {
+func NewMandrill(mandrillKey string) (Mandrill, error) {
 	mandrillAPI, err := gochimp.NewMandrill(mandrillKey)
 	if err != nil {
 		return Mandrill{}, err
@@ -20,7 +20,6 @@ func NewMandrill(targetEmail, mandrillKey string) (Mandrill, error) {
 
 	return Mandrill{
 		mandrillAPI: mandrillAPI,
-		targetEmail: targetEmail,
 	}, nil
 }
 

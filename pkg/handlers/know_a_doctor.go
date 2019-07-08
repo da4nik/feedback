@@ -10,21 +10,21 @@ import (
 func (h Handlers) knowADoctor(w http.ResponseWriter, r *http.Request) {
 	name := r.PostFormValue("name")
 	location := r.PostFormValue("location")
-	specialty := r.PostFormValue("specialty")
+	speciality := r.PostFormValue("speciality")
 	phone := r.PostFormValue("phone")
 
 	text := fmt.Sprintf(
 		"A patient knows a doctor %s (%s), who is working at %s. "+
 			"Doctor's phone number is %s",
 		name,
-		specialty,
+		speciality,
 		location,
 		phone)
 
 	log.Debugf("Feedback email, doctor %q (%s)", name, phone)
 
 	err := h.email.Send(
-		"sales@captureproof.com",
+		h.targetEmail,
 		"[marketing] Patient knows a doctor",
 		text)
 	if err != nil {

@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 	"strings"
+
+	"github.com/da4nik/feedback/internal/log"
 )
 
 type text interface {
@@ -17,16 +19,18 @@ type handlers = map[string]http.HandlerFunc
 
 // Handlers represents handlers entity
 type Handlers struct {
-	text     text
-	email    email
-	handlers handlers
+	text        text
+	email       email
+	handlers    handlers
+	targetEmail string
 }
 
 // NewHandlers - return new instance of Handlers
-func NewHandlers(text text, email email) Handlers {
+func NewHandlers(text text, email email, targetEmail string) Handlers {
 	h := Handlers{
-		text:  text,
-		email: email,
+		text:        text,
+		email:       email,
+		targetEmail: targetEmail,
 	}
 
 	handlerMap := handlers{
@@ -75,8 +79,9 @@ func (h Handlers) onlyAllowedMethod(
 
 func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		origin := strings.Trim(r.Header.Get("Origin"), " ")
+		origin := strings.Trim(r.Host, " ")
 		if !h.isValidHost(origin) {
+			log.Errorf("Request host is not valid: %s", origin)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
@@ -92,7 +97,7 @@ func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 
 func (h Handlers) isValidHost(host string) (result bool) {
 	result = strings.Contains(host, "captureproof.com") ||
-		strings.Contains(host, "cp2.div-art.com.ua")
-		// || strings.Contains(host, "localhost") // for dev purposes
+		strings.Contains(host, "cp2.div-art.com.ua") ||
+		strings.Contains(host, "localhost") // for dev purposes
 	return
 }
