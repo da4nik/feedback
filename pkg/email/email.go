@@ -9,11 +9,11 @@ type Email struct {
 }
 
 // NewEmail - returns new email instance
-func NewEmail(targetEmail, mandrillKey string) (Email, error) {
+func NewEmail() (Email, error) {
 	return Email{}, nil
 }
 
 // Send - sends email
-func (e Email) Send(email, message string) error {
+func (e Email) Send(email, subject, body string) error {
 	return fmt.Errorf("not yet implemented")
 }
