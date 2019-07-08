@@ -10,7 +10,7 @@ type text interface {
 }
 
 type email interface {
-	Send(string, string) error
+	Send(email, subject, body string) error
 }
 
 type handlers = map[string]http.HandlerFunc
@@ -41,13 +41,22 @@ func NewHandlers(text text, email email) Handlers {
 
 // ServerHTTP servers http request
 func (h Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if fun, exists := h.handlers[r.URL.Path]; exists {
-		h.onlyAllowedMethod("POST",
+	// Middlewares
+	fun :=
+		logger(
 			h.cors(
-				fun))
-	} else {
-		w.WriteHeader(http.StatusNotFound)
+				h.onlyAllowedMethod("POST",
+					h.processEndpoints)))
+	fun(w, r)
+}
+
+func (h Handlers) processEndpoints(w http.ResponseWriter, r *http.Request) {
+	if fun, exists := h.handlers[r.URL.Path]; exists {
+		fun(w, r)
+		return
 	}
+
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func (h Handlers) onlyAllowedMethod(
@@ -69,6 +78,7 @@ func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 		origin := strings.Trim(r.Header.Get("Origin"), " ")
 		if !h.isValidHost(origin) {
 			w.WriteHeader(http.StatusNotFound)
+			return
 		}
 
 		w.Header().Set("Access-Control-Allow-Origin", origin)

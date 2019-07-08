@@ -29,6 +29,10 @@
   branch = "master"
   name = "github.com/mattbaird/gochimp"
 
+[[constraint]]
+  version = "1.4.1"
+  name = "github.com/sirupsen/logrus"
+
 [prune]
   go-tests = true
   unused-packages = true

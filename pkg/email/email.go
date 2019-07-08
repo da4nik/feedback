@@ -1,13 +1,16 @@
 package email
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Email - email entity
-type Email struct{}
+type Email struct {
+}
 
 // NewEmail - returns new email instance
-func NewEmail() Email {
-	return Email{}
+func NewEmail(targetEmail, mandrillKey string) (Email, error) {
+	return Email{}, nil
 }
 
 // Send - sends email
