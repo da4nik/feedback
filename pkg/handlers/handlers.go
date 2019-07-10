@@ -97,7 +97,7 @@ func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 
 func (h Handlers) isValidHost(host string) (result bool) {
 	result = strings.Contains(host, "captureproof.com") ||
-		strings.Contains(host, "cp2.div-art.com.ua") ||
-		strings.Contains(host, "localhost") // for dev purposes
+		strings.Contains(host, "cp2.div-art.com.ua") // ||
+		// strings.Contains(host, "localhost") // for dev purposes
 	return
 }

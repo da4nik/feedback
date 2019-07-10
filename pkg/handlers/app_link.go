@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -29,6 +30,14 @@ func (h Handlers) appLink(w http.ResponseWriter, r *http.Request) {
 	if err := h.sendTextLink(phone, androidAppLinkMessage, w); err != nil {
 		log.Errorf("unable to send android link: %s", err.Error())
 		return
+	}
+
+	err := h.email.Send(
+		h.targetEmail,
+		"[marketing] Guest requested app link",
+		fmt.Sprintf("Guest with phone number %s requested our app link.", phone))
+	if err != nil {
+		log.Errorf("[app-link] Unable to send email: %s", err.Error())
 	}
 
 	w.WriteHeader(http.StatusOK)
