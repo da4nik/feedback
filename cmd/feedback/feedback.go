@@ -31,7 +31,14 @@ func main() {
 		return
 	}
 
-	hndlr := handlers.NewHandlers(txt, mandr, conf.TargetEmail)
+	hndlr := handlers.NewHandlers(
+		txt,
+		mandr,
+		conf.TargetEmail,
+		[]string{
+			"captureproof.com",
+			"cp2.div-art.com.ua",
+		})
 
 	httpServer := server.NewServer(conf.Port, hndlr)
 	httpServer.Start()

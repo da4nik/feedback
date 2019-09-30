@@ -19,18 +19,25 @@ type handlers = map[string]http.HandlerFunc
 
 // Handlers represents handlers entity
 type Handlers struct {
-	text        text
-	email       email
-	handlers    handlers
-	targetEmail string
+	text         text
+	email        email
+	handlers     handlers
+	targetEmail  string
+	allowedHosts []string
 }
 
 // NewHandlers - return new instance of Handlers
-func NewHandlers(text text, email email, targetEmail string) Handlers {
+func NewHandlers(
+	text text,
+	email email,
+	targetEmail string,
+	allowedHosts []string) Handlers {
+
 	h := Handlers{
-		text:        text,
-		email:       email,
-		targetEmail: targetEmail,
+		text:         text,
+		email:        email,
+		targetEmail:  targetEmail,
+		allowedHosts: allowedHosts,
 	}
 
 	handlerMap := handlers{
@@ -69,7 +76,7 @@ func (h Handlers) onlyAllowedMethod(
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
@@ -82,11 +89,11 @@ func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 		origin := strings.Trim(r.Host, " ")
 		if !h.isValidHost(origin) {
 			log.Errorf("Request host is not valid: %s", origin)
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Origin")
 		w.Header().Set("Access-Control-Allow-Methods", "POST")
@@ -95,9 +102,11 @@ func (h Handlers) cors(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (h Handlers) isValidHost(host string) (result bool) {
-	result = strings.Contains(host, "captureproof.com") ||
-		strings.Contains(host, "cp2.div-art.com.ua") // ||
-		// strings.Contains(host, "localhost") // for dev purposes
-	return
+func (h Handlers) isValidHost(host string) bool {
+	for _, allowedHost := range h.allowedHosts {
+		if strings.Contains(host, allowedHost) {
+			return true
+		}
+	}
+	return false
 }
